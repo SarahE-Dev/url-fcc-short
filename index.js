@@ -24,7 +24,7 @@ app.post('/api/shorturl', function(req, res) {
     try {
       
       const url = req.body.url
-      let valid = /^(ftp|http|https):\/\/[^ "]+$/.test(url);
+      let valid = url.startsWith('http://') || url.startsWith('https://')
       if(!valid){
         res.json({error: 'invalid url'})
         return
@@ -33,10 +33,12 @@ app.post('/api/shorturl', function(req, res) {
       let foundUrl = urlArray.find((item) => item.original_url === url)
       if(foundUrl){
         res.json({original_url: foundUrl.original_url, short_url: foundUrl.short_url})
+        return
       }
       else {
         urlArray.push({original_url: url, short_url: short_url})
         res.json({original_url: url, short_url: short_url})
+        return
       }
     } catch (error) {
       res.json({error: 'invalid url'})
@@ -49,9 +51,11 @@ app.get('/api/shorturl/:short_url?', function(req, res) {
     let found = urlArray.find((item) => item.short_url === req.params.short_url)
     if(found){
       res.redirect(found.original_url)
+      return
     }
   } catch (error) {
     res.json({error: 'invalid url'})
+
   }
 })
 
